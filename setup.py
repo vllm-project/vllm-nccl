@@ -57,7 +57,9 @@ available_dist_info = [
 # download and install nccl package specific to vLLM
 
 architecture = platform.machine()
-assert architecture in ["x86_64", "aarch64", "ppc64le"], f"Unsupported architecture: {architecture}"
+if architecture not in ["x86_64", "aarch64", "ppc64le"]:
+    print(f"Unsupported architecture: {architecture}, using x86_64 instead.")
+    architecture = "x86_64"
 
 assert "VLLM_INSTALL_NCCL" in os.environ, "Environment variable VLLM_INSTALL_NCCL is not set"
 
@@ -105,7 +107,7 @@ for root, dirs, filenames in os.walk("nccl"):
 
 setup(
     name='vllm_nccl',
-    version='0.1',
+    version='0.1.0',
     packages=find_packages(),
     # this directory lies in either `sys.prefix` or `site.USER_BASE`
     # according to https://setuptools.pypa.io/en/latest/deprecated/distutils/setupscript.html#installing-additional-files
