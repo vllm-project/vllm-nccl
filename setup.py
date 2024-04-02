@@ -2,7 +2,7 @@
 # it appears in `pip` style `setup.py` file, to be easily installable with `pip install`
 # and files can be removed with `pip uninstall`
 # its argument is derived from environment variable `VLLM_INSTALL_NCCL`,
-# e.g. `VLLM_INSTALL_NCCL=2.18+cu11 pip install vllm_nccl`
+# e.g. `VLLM_INSTALL_NCCL=2.18+cu12 pip install vllm_nccl`
 # after installation, files are available in `{sys.prefix}/vllm_nccl` directory
 
 from setuptools import setup, find_packages
@@ -61,7 +61,10 @@ if architecture not in ["x86_64", "aarch64", "ppc64le"]:
     print(f"Unsupported architecture: {architecture}, using x86_64 instead.")
     architecture = "x86_64"
 
-assert "VLLM_INSTALL_NCCL" in os.environ, "Environment variable VLLM_INSTALL_NCCL is not set"
+if "VLLM_INSTALL_NCCL" not in os.environ:
+    print("Environment variable VLLM_INSTALL_NCCL is not set.")
+    print("setting it to 2.18+cu12 by default")
+    os.environ["VLLM_INSTALL_NCCL"] = "2.18+cu12"
 
 nccl_major_version, cuda_major_version = os.environ["VLLM_INSTALL_NCCL"].split("+")
 cuda_major_version = cuda_major_version[2:] # remove "cu" prefix
