@@ -1,5 +1,6 @@
 # this is actually a download and install script
 # it appears in `pip` style `setup.py` file, to be easily installable with `pip install`
+# and files can be removed with `pip uninstall`
 # its argument is derived from environment variable `VLLM_INSTALL_NCCL`,
 # e.g. `VLLM_INSTALL_NCCL=2.18+cu11 pip install vllm_nccl`
 # after installation, files are available in `{sys.prefix}/vllm_nccl` directory
@@ -61,6 +62,7 @@ assert architecture in ["x86_64", "aarch64", "ppc64le"], f"Unsupported architect
 assert "VLLM_INSTALL_NCCL" in os.environ, "Environment variable VLLM_INSTALL_NCCL is not set"
 
 nccl_major_version, cuda_major_version = os.environ["VLLM_INSTALL_NCCL"].split("+")
+cuda_major_version = cuda_major_version[2:] # remove "cu" prefix
 
 assert nccl_major_version in ["2.20", "2.18", "2.17", "2.16"], f"Unsupported nccl major version: {nccl_major_version}"
 
