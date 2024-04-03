@@ -42,7 +42,7 @@ available_dist_info = [
     DistInfo('12.2', '2.20.3', '2.20.3', 'nccl_2.20.3-1+cuda12.2_x86_64.txz'),
 ]
 
-package_name = "vllm_nccl_cu12"
+package_name = "vllm_nccl_cu11"
 cuda_name = package_name[-4:]
 nccl_version = "2.18.1"
 vllm_nccl_verion = "0.1.0"
@@ -56,7 +56,7 @@ import urllib.request
 import os
 
 # desination path is ~/.config/vllm/nccl/cu12/libnccl.so.2.18.1
-destination = os.path.expanduser(f"~/.config/vllm/nccl/cu12/libnccl.so.{nccl_version}")
+destination = os.path.expanduser(f"~/.config/vllm/nccl/{cuda_name}/libnccl.so.{nccl_version}")
 
 os.makedirs(os.path.dirname(destination), exist_ok=True)
 
