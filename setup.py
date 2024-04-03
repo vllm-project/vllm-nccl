@@ -12,6 +12,8 @@ import platform
 import os
 from dataclasses import dataclass
 
+# for reference, we can download nccl from the following links
+
 @dataclass
 class DistInfo:
     cuda_version: str
@@ -40,82 +42,34 @@ available_dist_info = [
     DistInfo('12.2', '2.20.3', '2.20.3', 'nccl_2.20.3-1+cuda12.2_x86_64.txz'),
 ]
 
-# # test code to check if the files are available
-# for each in available_dist_info:
-#     url_temp = "https://developer.download.nvidia.com/compute/redist/nccl/v{}/{}".format(
-#         each.public_version, each.filename_linux)
-#     for architecture in ["x86_64", "aarch64", "ppc64le"]:
-#         url = each.get_url(architecture)
-#         # print(url)
-#         import requests
-#         # don't download the file, just check if it exists
-#         response = requests.head(url)
-#         if response.status_code == 200:
-#             pass
-#             # print(f"nccl package found at {url}")
-#         else:
-#             print(f"nccl package not found at {url}")
+package_name = "vllm_nccl_cu12"
+cuda_name = package_name[-4:]
+nccl_version = "2.18.1"
+vllm_nccl_verion = "0.1.0"
+version = ".".join([nccl_version, vllm_nccl_verion])
 
-# download and install nccl package specific to vLLM
+assert nccl_version == "2.18.1", f"only support nccl 2.18.1, got {version}"
 
-architecture = platform.machine()
-if architecture not in ["x86_64", "aarch64", "ppc64le"]:
-    print(f"Unsupported architecture: {architecture}, using x86_64 instead.")
-    architecture = "x86_64"
+url = f"https://storage.googleapis.com/vllm-public-assets/nccl/{cuda_name}/libnccl.so.{nccl_version}"
 
-if "VLLM_INSTALL_NCCL" not in os.environ:
-    print("Environment variable VLLM_INSTALL_NCCL is not set.")
-    print("setting it to 2.18+cu12 by default")
-    os.environ["VLLM_INSTALL_NCCL"] = "2.18+cu12"
+import urllib.request
+import os
 
-nccl_major_version, cuda_major_version = os.environ["VLLM_INSTALL_NCCL"].split("+")
-cuda_major_version = cuda_major_version[2:] # remove "cu" prefix
+# desination path is ~/.config/vllm/nccl/cu12/libnccl.so.2.18.1
+destination = os.path.expanduser(f"~/.config/vllm/nccl/cu12/libnccl.so.{nccl_version}")
 
-assert nccl_major_version in ["2.20", "2.18", "2.17", "2.16"], f"Unsupported nccl major version: {nccl_major_version}"
+os.makedirs(os.path.dirname(destination), exist_ok=True)
 
-assert cuda_major_version in ["11", "12"], f"Unsupported cuda major version: {cuda_major_version}"
-
-url = None
-
-for each in available_dist_info:
-    if each.cuda_version.split(".")[0] == cuda_major_version and each.full_version.startswith(nccl_major_version):
-        url = each.get_url(architecture)
-        break
-
-assert url is not None, f"Could not find a suitable nccl package for cuda {cuda_major_version} and nccl {nccl_major_version}"
-
-print(f"Downloading nccl package from {url}")
-
-# download from url
-if not os.path.exists("nccl"):
-    import requests
-    import os
-    import shutil
-    import subprocess
-
-    # download with progress bar
-    response = requests.get(url, stream=True)
-    response.raise_for_status()
-    with open("nccl.txz", "wb") as f:
-        shutil.copyfileobj(response.raw, f)
-
-    # extract the file to a temporary location, using python's built-in tarfile module
-    import tarfile
-    with tarfile.open("nccl.txz") as f:
-        f.extractall("nccl")
-
-# list all the files in the extracted directory
-files = []
-for root, dirs, filenames in os.walk("nccl"):
-    for filename in filenames:
-        files.append(os.path.relpath(os.path.join(root, filename), "."))
+if os.path.exists(destination):
+    print(f"nccl package already exists at {destination}")
+else:
+    print(f"Downloading nccl package from {url}")
+    import urllib.request
+    urllib.request.urlretrieve(url, destination)
+    print(f"nccl package downloaded to {destination}")
 
 setup(
-    name='vllm_nccl',
-    version='0.1.0',
-    packages=find_packages(),
-    # this directory lies in either `sys.prefix` or `site.USER_BASE`
-    # according to https://setuptools.pypa.io/en/latest/deprecated/distutils/setupscript.html#installing-additional-files
-    # usually it is under `sys.prefix`
-    data_files=[('vllm_nccl', files)],
+    name=package_name,
+    version=version,
+    packages=["vllm_nccl"],
 )
