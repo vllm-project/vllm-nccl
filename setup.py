@@ -1,11 +1,5 @@
 # this is actually a download and install script
 # it appears in `pip` style `setup.py` file, to be easily installable with `pip install`
-# and files can be removed with `pip uninstall`
-# unfortunately, this brings nccl into the wheel, which will exceed the 100MB limit of PyPI.
-# so we don't upload this to PyPI, but instead, we can install it from github
-# its argument is derived from environment variable `VLLM_INSTALL_NCCL`,
-# e.g. `VLLM_INSTALL_NCCL=2.18+cu12 pip install https://github.com/vllm-project/vllm-nccl.git`
-# after installation, files are available in `{sys.prefix}/vllm_nccl` directory
 
 from setuptools import setup, find_packages
 import platform
