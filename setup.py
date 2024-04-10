@@ -39,12 +39,12 @@ available_dist_info = [
 package_name = "vllm_nccl_cu11"
 cuda_name = package_name[-4:]
 nccl_version = "2.18.1"
-vllm_nccl_verion = "0.1.0"
+vllm_nccl_verion = "0.2.0"
 version = ".".join([nccl_version, vllm_nccl_verion])
 
 assert nccl_version == "2.18.1", f"only support nccl 2.18.1, got {version}"
 
-url = f"https://storage.googleapis.com/vllm-public-assets/nccl/{cuda_name}/libnccl.so.{nccl_version}"
+url = f"https://github.com/vllm-project/vllm-nccl/releases/download/v0.1.0/{cuda_name}-libnccl.so.{nccl_version}"
 
 import urllib.request
 import os
