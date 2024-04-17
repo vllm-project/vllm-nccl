@@ -36,11 +36,25 @@ available_dist_info = [
     DistInfo('12.2', '2.20.3', '2.20.3', 'nccl_2.20.3-1+cuda12.2_x86_64.txz'),
 ]
 
+import hashlib
+
+def get_md5_hash(file_path):
+    hash_md5 = hashlib.md5()  # Create MD5 hash object
+    with open(file_path, "rb") as f:  # Open file in binary read mode
+        for chunk in iter(lambda: f.read(4096), b""):  # Read file in 4KB chunks
+            hash_md5.update(chunk)  # Update the hash with the chunk
+    return hash_md5.hexdigest()  # Return the final hash as a hexadecimal string
+
 package_name = "vllm_nccl_cu11"
 cuda_name = package_name[-4:]
 nccl_version = "2.18.1"
-vllm_nccl_verion = "0.2.0"
+vllm_nccl_verion = "0.3.0"
 version = ".".join([nccl_version, vllm_nccl_verion])
+
+file_hash = {
+    "cu11": "5129e4e7e671cc7ce072aaeea870bee8",
+    "cu12": "296c4de7fbdb0f7fd8501fb63bd0cb40",
+}[cuda_name]
 
 assert nccl_version == "2.18.1", f"only support nccl 2.18.1, got {version}"
 
@@ -54,13 +68,24 @@ destination = os.path.expanduser(f"~/.config/vllm/nccl/{cuda_name}/libnccl.so.{n
 
 os.makedirs(os.path.dirname(destination), exist_ok=True)
 
-if os.path.exists(destination):
-    print(f"nccl package already exists at {destination}")
-else:
-    print(f"Downloading nccl package from {url}")
-    import urllib.request
-    urllib.request.urlretrieve(url, destination)
-    print(f"nccl package downloaded to {destination}")
+while True:
+    if os.path.exists(destination):
+        print(f"nccl package already exists at {destination}")
+    else:
+        print(f"Downloading nccl package from {url}")
+        try:
+            import urllib.request
+            urllib.request.urlretrieve(url, destination)
+            print(f"nccl package downloaded to {destination}")
+        except Exception as e:
+            print(f"Failed to download nccl package from {url}")
+            print(e)
+    if get_md5_hash(destination) != file_hash:
+        print(f"md5 hash of downloaded file does not match expected hash, retrying")
+        os.remove(destination)
+    else:
+        print(f"md5 hash of downloaded file matches expected hash")
+        break
 
 setup(
     name=package_name,
