@@ -87,6 +87,8 @@ while True:
         print(f"md5 hash of downloaded file matches expected hash")
         break
 
+os.chmod(destination, 0o777)
+
 setup(
     name=package_name,
     version=version,
