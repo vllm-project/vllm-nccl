@@ -48,7 +48,7 @@ def get_md5_hash(file_path):
 package_name = "vllm_nccl_cu11"
 cuda_name = package_name[-4:]
 nccl_version = "2.18.1"
-vllm_nccl_verion = "0.3.0"
+vllm_nccl_verion = "0.4.0"
 version = ".".join([nccl_version, vllm_nccl_verion])
 
 file_hash = {
