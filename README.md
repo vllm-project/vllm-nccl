@@ -1,3 +1,5 @@
+**NOTE: This repo is deprecated with [this fix](https://github.com/vllm-project/vllm/pull/5091) to the main vLLM repo.**
+
 # vllm-nccl
 
 Manages vllm-nccl dependency
